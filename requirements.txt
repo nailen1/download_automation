@@ -1,0 +1,9 @@
+pandas
+numpy
+datetime
+pyautogui
+psutil
+boto3
+pynput
+pillow
+pyscreeze

@@ -1,0 +1,44 @@
+# virtualenv
+venv/
+# IDE
+.idea/
+# logs
+logs/
+# database
+db.sqlite3
+# compiled python
+*.pyc
+# local settings
+local_settings.py
+# static files
+static/
+# media files
+media/
+# secret key
+secret_key.txt
+# environment
+.env
+# docker
+Dockerfile
+docker-compose.yml
+# vscode
+.vscode/
+# python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+# jupyter
+.ipynb_checkpoints/
+# node
+node_modules/
+# npm
+package-lock.json
+# yarn
+yarn.lock
+# mac
+.DS_Store
+# windows
+Thumbs.db
+# linux
+*.swp
