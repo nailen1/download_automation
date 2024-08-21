@@ -1,3 +1,5 @@
+# coordinate_tracer.py
+
 import pyautogui
 from pynput import mouse, keyboard
 import time
@@ -8,7 +10,7 @@ from shining_pebbles import *
 class Tracer:
     def __init__(self, subject):
         self.subject = subject
-        self.file_folder = check_folder_and_create_folder('dataset-coordinate')
+        self.file_folder = check_folder_and_create_folder('./dataset-coordinate')
         self.file_name = f'dataset-coordinate-{subject}-save{get_today("%Y%m%d%H")}.csv'
 
     def record_coordinates(self):

@@ -1,9 +1,19 @@
-from coordinate_tracer import *
+# download_automation.py
+
 from shining_pebbles import *
-from office_system_download_processror import *
+import csv 
+from tqdm import tqdm
+
+from coordinate_tracer import *
+from download_processor_for_office_system import *
+from download_processor_for_excel import *
+from download_processor_for_s3 import *
+from constants import *
+
+
 
 def get_df_coordinate_of_menu(menu_code):
-    df = open_recorded_coordinates(file_folder='dataset-coordinate', subject=f'menu{menu_code}')
+    df = open_recorded_coordinates(file_folder=COORDINATE_FOLDER, subject=f'menu{menu_code}')
     return df
 
 def get_sequences_of_menu(menu_code):
@@ -189,38 +199,38 @@ class MOS:
         return coord
 
     def execute_input_menu_code(self):
-        print(f'- open menu: {self.menu_code}')
+        print(f'- (step) open menu: {self.menu_code}')
         coord = self.get_coord_of_sequence('input_menu_code')
         execute_input_menu_code_of_menu_and_enter(coord_input_menu=coord, menu_code=self.menu_code)
         return None
     
     def execute_input_fund_code(self):
-        fund_code_value = '000000 == all funds' if self.fund_code == '' else self.fund_code
-        print(f'- input fund code: {fund_code_value}')
+        fund_code_value = 'all funds' if self.fund_code == '' else self.fund_code
+        print(f'- (step) input fund code: {fund_code_value}')
         coord = self.get_coord_of_sequence('input_fund_code')
         execute_input_fund_code(coord_input_fund_code=coord, fund_code=self.fund_code)
         return None
     
     def execute_input_start_date(self):
-        print(f'- input start date: {self.start_date}')
+        print(f'- (step) input start date: {self.start_date}')
         coord = self.get_coord_of_sequence('input_start_date')
         input_something_on_input_field(coord_input=coord, something=self.start_date)
         return None
     
     def execute_input_end_date(self):
-        print(f'- input end date: {self.end_date}')
+        print(f'- (step) input end date: {self.end_date}')
         coord = self.get_coord_of_sequence('input_end_date')
         input_something_on_input_field(coord_input=coord, something=self.end_date)
         return None
     
     def execute_input_ref_date(self):
-        print(f'- input ref date: {self.input_date}')
+        print(f'- (step) input ref date: {self.input_date}')
         coord = self.get_coord_of_sequence('input_ref_date')
         input_something_on_input_field(coord_input=coord, something=self.input_date)
         return None
     
     def execute_button_search(self):
-        print(f'- click search button')
+        print(f'- (step) click search button')
         coord = self.get_coord_of_sequence('button_search')
         click_button(coord_button=coord)
         if not is_now_search_loading():
@@ -229,7 +239,7 @@ class MOS:
         return None
     
     def execute_button_excel(self):
-        print(f'- click excel button')
+        print(f'- (step) click excel button')
         coord = self.get_coord_of_sequence('button_excel')
         mapping = self.mapping_sequence_to_coordinate
         click_button(coord_button=coord)
@@ -240,9 +250,11 @@ class MOS:
         return None
 
     def execute_button_excel_popup(self):
-        print(f'- click excel popup button')
+        print(f'- (step) click excel popup button')
         coord = self.get_coord_of_sequence('button_excel_popup')
         click_button(coord_button=coord)
+        if is_data_loading_started():
+            pass
         if not is_now_data_loading():
             pass
         wait_for_n_seconds(3)
@@ -285,15 +297,26 @@ class MOS:
         return None
     
     def recursive_download_dataset(self):
+        print(f'⏳ download start: {self.file_name} in {self.file_folder}')
         if is_dataset_downloaded(fund_code=self.file_folder, save_file_folder=self.file_folder, file_name=self.file_name):
             print(f'⭕ download complete: {self.file_name} in {self.file_folder}')
-            close_excel()
         else:
             self.execute_all_sequences()
             self.recursive_download_dataset()
         return None
     
         
+
+
+def get_input_dates_downloaded_in_file_folder(menu_code, file_folder=None, form='%Y%m%d'):
+    file_folder = os.path.join(base_folder_path, f'dataset-menu{menu_code}') if file_folder is None else file_folder
+    file_names_downloaded = scan_files_including_regex(file_folder=file_folder, regex=f'menu{menu_code}')
+    input_dates_downloaded = [pick_input_date_in_file_name(file_name) for file_name in file_names_downloaded]
+    if form == '%Y-%m-%d':
+        input_dates_downloaded = [f'{date[:4]}-{date[4:6]}-{date[6:8]}' for date in input_dates_downloaded]
+    return input_dates_downloaded
+
+
 def download_all_snapshot_datasets_of_timeseries(menu_code, start_date=date_genesis_real, end_date=get_date_n_days_ago(get_today("%Y-%m-%d"),1)):
     dates = get_date_range(start_date_str=start_date, end_date_str=end_date)
     dates_downloaded = get_input_dates_downloaded_in_file_folder(menu_code, file_folder=os.path.join(base_folder_path, f'dataset-menu{menu_code}-snapshot'), form='%Y-%m-%d')
@@ -305,4 +328,133 @@ def download_all_snapshot_datasets_of_timeseries(menu_code, start_date=date_gene
         print(f' ▶ input date: {date}')
         mos = MOS(menu_code=menu_code, input_date=date)
         mos.recursive_download_dataset()
+    return None
+
+
+
+def get_fund_codes_downloaded_in_file_folder(menu_code, input_date=None, end_date=None, file_folder=None):
+    file_folder = os.path.join(base_folder_path, f'dataset-menu{menu_code}') if file_folder is None else file_folder
+    if input_date and not end_date:
+        regex = f'menu{menu_code}.*-at{input_date.replace("-","")}-.*.csv$'
+    elif not input_date and end_date:
+        regex = f'menu{menu_code}.*-to{end_date.replace("-","")}-.*.csv$'
+    file_names_downloaded = scan_files_including_regex(file_folder=file_folder, regex=regex)
+    fund_codes_downloaded = [pick_code_in_file_name(file_name) for file_name in file_names_downloaded]
+    return fund_codes_downloaded
+
+
+
+def save_download_log_of_timeseries_datasets(file_folder, end_date):
+    menu_code = file_folder.split('menu')[1][:4]
+    file_folder_path = os.path.join(base_folder_path, file_folder)
+    print(f'- check download datasets in folder: {file_folder_path}')
+    file_names = scan_files_including_regex(file_folder=file_folder_path, regex=f'^menu.*-to{end_date.replace("-","")}-save.*.csv$')
+    bucket = []
+    for file_name in file_names:
+        fund_code = file_name.split('-code')[1].split('-')[0]
+        try:
+            start_date = file_name.split('from')[1][:8]
+        except:
+            start_date = np.nan
+        end_date = file_name.split('-to')[1][:8]
+        save_date = file_name.split('-save')[1][:8]
+
+        try:
+            df = open_df_in_file_folder_by_regex(file_folder=file_folder_path, regex=file_name)
+            dates_in_df = df.index.dropna()
+            n_days = len(dates_in_df)
+            if n_days == 0:
+                t_i = np.nan
+                t_f = np.nan
+            else:
+                t_i = dates_in_df[0]
+                t_f = dates_in_df[-1]
+        except:
+            t_i = np.nan
+            t_f = np.nan    
+
+        dct = {
+            'menu_code': menu_code,
+            'fund_code': fund_code,
+            'start_date': start_date,
+            'end_date': end_date,
+            'file_name': file_name,
+            'n_days': n_days,
+            't_i': t_i,
+            't_f': t_f,
+            'save_date': save_date
+        }
+        bucket.append(dct)
+    df = pd.DataFrame(bucket)
+    df['fund_code'] = df['fund_code'].astype(str).apply(lambda x: x.zfill(6) if len(x) <= 6 else x)
+    file_folder_log = os.path.join(base_folder_path, 'dataset-log')
+    check_folder_and_create_folder(file_folder_log)
+    file_name = f'log-{file_folder}-to{end_date.replace("-","")}-save{get_today("%Y%m%d%H")}.csv'
+    file_path = os.path.join(file_folder_log, file_name)
+    df.to_csv(file_path, quoting=csv.QUOTE_NONNUMERIC)
+    print(f'- save log to: {file_path}')
+    return df
+
+
+def save_download_log_of_sanpshot_datasets(file_folder, input_date):
+    menu_code = file_folder.split('menu')[1][:4]
+    file_folder_path = os.path.join(base_folder_path, file_folder)
+    print(f'- check download datasets in folder: {file_folder_path}')
+    file_names = scan_files_including_regex(file_folder=file_folder_path, regex=f'^menu.*-at{input_date.replace("-","")}-.*.csv$')
+    bucket = []
+    for file_name in file_names:
+        fund_code = file_name.split('-code')[1].split('-')[0]
+        input_date = file_name.split('-at')[1][:8]
+        save_date = file_name.split('-save')[1][:8]
+        try:
+            df = open_df_in_file_folder_by_regex(file_folder=file_folder_path, regex=file_name)
+            rows_in_df = df.index.dropna()
+            n_rows = len(rows_in_df)
+            if n_rows == 0:
+                n_rows = np.nan
+        except:
+            n_rows = np.nan 
+        dct = {
+            'menu_code': menu_code,
+            'fund_code': fund_code,
+            'input_date': input_date,
+            'file_name': file_name,
+            'n_rows': n_rows,
+            'save_date': save_date
+        }
+        bucket.append(dct)
+    df = pd.DataFrame(bucket)
+    df['fund_code'] = df['fund_code'].astype(str).apply(lambda x: x.zfill(6) if len(x) <= 6 else x)
+    file_folder_log = os.path.join(base_folder_path, 'dataset-log')
+    check_folder_and_create_folder(file_folder_log)
+    file_name = f'log-{file_folder}-at{input_date.replace("-","")}-save{get_today("%Y%m%d%H")}.csv'
+    file_path = os.path.join(file_folder_log, file_name)
+    df.to_csv(file_path, quoting=csv.QUOTE_NONNUMERIC)
+    print(f'- save log to: {file_path}')
+    return df
+
+
+def check_download_folders_in_root(folder_regex):
+    print(f'- check download folders in root folder: {os.path.join(base_folder_path, folder_regex)}')
+    folders = scan_files_including_regex(file_folder=base_folder_path, regex=folder_regex, option='name')
+    for folder in folders:
+        print(folder)
+        save_download_log_of_timeseries_datasets(folder)
+    return None
+
+
+def download_all_datasets_of_snapshot(menu_code='2205', input_date=None, fund_codes=None, category='all'):
+    input_date = input_date or get_date_n_days_ago(get_today("%Y%m%d"),1)
+    df_fundlist = get_df_fundlist_from_menu2160_snapshots_in_s3(category=category)
+    fund_codes = df_fundlist.index.tolist()
+    fund_codes_downloaded = get_fund_codes_downloaded_in_file_folder(menu_code=menu_code, input_date=input_date)
+    if fund_codes_downloaded != []:
+        print(f'{len(fund_codes_downloaded)}/{len(fund_codes)} funds downloaded: ... {fund_codes_downloaded[-1]}')
+        fund_codes = list(set(fund_codes) - set(fund_codes_downloaded))
+    fund_codes = sorted(fund_codes)
+    for fund_code in tqdm(fund_codes):
+        mos = MOS(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
+        mos.recursive_download_dataset()
+    save_download_log_of_sanpshot_datasets(file_folder=f'dataset-menu{menu_code}', input_date=input_date)
+
     return None

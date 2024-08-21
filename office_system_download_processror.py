@@ -59,13 +59,13 @@ def is_now_search_loading():
 
 def is_now_data_loading():
     print('-- data loading ...')
+    if is_there_data_length_caution_popup():
+        wait_for_n_seconds(2)
+        move_to_image(image_path_excel_caution_confirm_button)
+        wait_for_n_seconds(1)
+        click()
     loading = check_image_appearance(image_path_loading_excel_go, max_check_time=5)
     if loading:
-        if is_there_data_length_caution_popup():
-            wait_for_n_seconds(2)
-            move_to_image(image_path_excel_caution_confirm_button)
-            wait_for_n_seconds(1)
-            click()
         is_now_data_loading()
     else:
         print('-- data loaded.')
@@ -93,17 +93,17 @@ def is_on_running_excel():
     else:
         print('-- excel is not running.')
         return False
-
-def is_on_excel_save_as_popup():
+    
+def control_on_excel_to_save_as_popup():
     print('-- checking excel save as popup ...')
-    wait_for_n_seconds(2)
-    caution = check_image_appearance(image_path_excel_folder_arrows, max_check_time=3)
-    if caution:
-        print('-- excel save as popup appeared.')
-        return True
+    if is_on_running_excel():
+        pass
     else:
-        print('-- no excel save as popup.')
-        return False
+        control_on_excel_to_save_as_popup()
+    print(f'- step: open save as popup.')
+    wait_for_n_seconds(2)
+    press(key_save_as_windows)
+    wait_for_n_seconds(1)
 
 
 def is_there_error_in_dataset_menu2160(file_folder, file_name):

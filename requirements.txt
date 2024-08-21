@@ -1,9 +1,11 @@
-pandas
-numpy
-datetime
 pyautogui
+pynput
+pandas
+tqdm
+opencv-python
+numpy
+mss
 psutil
 boto3
-pynput
-pillow
-pyscreeze
+shining_pebbles
+aws_s3_controller

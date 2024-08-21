@@ -1,8 +1,11 @@
+# screen_control_utils.py
+
 import cv2
 import numpy as np
 import mss
 import time
 import pyautogui
+from pyautogui import click
 from pynput import mouse
 from typing import List, Dict, Optional, Tuple
 
@@ -19,7 +22,7 @@ def wait_for_n_seconds(n: int, verbose: bool = False) -> None:
         None
     """
     if verbose:
-        print(f"Waiting for {n} seconds...")
+        print(f"    waiting for {n} seconds...")
     time.sleep(n)
     return None
 
@@ -42,7 +45,7 @@ def find_image_on_screen(image_path, threshold=0.8):
 
     template = cv2.imread(image_path, cv2.IMREAD_COLOR)
     if template is None:
-        raise FileNotFoundError(f"Image file '{image_path}' not found.")
+        raise FileNotFoundError(f"    image file '{image_path}' not found.")
 
     result = cv2.matchTemplate(screenshot, template, cv2.TM_CCOEFF_NORMED)
     loc = np.where(result >= threshold)
@@ -62,9 +65,29 @@ def move_cursor_to_image(image_path):
         center_x = position[0] + w // 2
         center_y = position[1] + h // 2
         pyautogui.moveTo(center_x, center_y)
-        print(f"Cursor moved to coordinates: ({center_x}, {center_y})")
+        print(f"    cursor moved to coordinates: ({center_x}, {center_y})")
     else:
-        print("Image not found on the screen.")
+        print("    image not found on the screen.")
+
+  
+def move_to_image(image_path, confidence_level=0.8, timeout=10):
+    start_time = time.time()
+    while True:
+        try:
+            location = pyautogui.locateCenterOnScreen(image_path, confidence=confidence_level)
+            if location:
+                pyautogui.moveTo(location)
+                return True
+        except ImageNotFoundException:
+            print(f"    could not find the image '{image_path}'. assuming it is not present.")
+            return False
+
+        if time.time() - start_time > timeout:
+            print(f"    timeout! could not find the image '{image_path}' within {timeout} seconds.")
+            return False
+        
+        time.sleep(1)
+
 
 def click_on_image(image_path):
     """
@@ -79,12 +102,12 @@ def click_on_image(image_path):
         center_x = position[0] + w // 2
         center_y = position[1] + h // 2
         pyautogui.click(center_x, center_y)
-        print(f"Clicked at coordinates: ({center_x}, {center_y})")
+        print(f"    clicked at coordinates: ({center_x}, {center_y})")
     else:
-        print("Image not found on the screen.")
+        print("     ismage not found on the screen.")
 
 
-def check_image_appearance(image_path, max_check_time=30, check_interval=1):
+def check_image_appearance(image_path, max_check_time=30, check_interval=1, verbose=False):
     """
     Continuously checks if the given image appears on the screen within the maximum check time.
 
@@ -98,7 +121,7 @@ def check_image_appearance(image_path, max_check_time=30, check_interval=1):
     """
     template = cv2.imread(image_path, cv2.IMREAD_COLOR)
     if template is None:
-        raise FileNotFoundError(f"-- Image file '{image_path}' not found.")
+        raise FileNotFoundError(f"    image file '{image_path}' not found.")
     
     start_time = time.time()
     
@@ -113,18 +136,19 @@ def check_image_appearance(image_path, max_check_time=30, check_interval=1):
         loc = np.where(result >= 0.8)
 
         if len(loc[0]) > 0:
-            print("-- Image found on the screen. Returning True.")
+            if verbose:
+                print("    image found on the screen. returning true.")
             return True
 
         elapsed_time = time.time() - start_time
         if elapsed_time > max_check_time:
-            print("-- Maximum check time exceeded. Stopping check. Assume it does not exist.")
+            if verbose:
+                print("    maximum check time exceeded. stopping check. assume it does not exist.")
             return False
 
         time.sleep(check_interval)
 
-
-def check_image_disappearance(image_path, max_check_time=30, check_interval=1):
+def check_image_disappearance(image_path, max_check_time=30, check_interval=1, verbose=False):
     """
     Continuously checks if the given image disappears from the screen within the maximum check time.
 
@@ -134,11 +158,11 @@ def check_image_disappearance(image_path, max_check_time=30, check_interval=1):
         check_interval (int): Interval in seconds between each check. Defaults to 1.
 
     Returns:
-        bool: False if the image disappears, True if the maximum check time is exceeded.
+        bool: True if the image disappears, False if the maximum check time is exceeded.
     """
     template = cv2.imread(image_path, cv2.IMREAD_COLOR)
     if template is None:
-        raise FileNotFoundError(f"Image file '{image_path}' not found.")
+        raise FileNotFoundError(f"    image file '{image_path}' not found.")
     
     start_time = time.time()
     
@@ -153,27 +177,32 @@ def check_image_disappearance(image_path, max_check_time=30, check_interval=1):
         loc = np.where(result >= 0.8)
 
         if len(loc[0]) > 0:
-            print("-- Image found on the screen. Continuing to check...")
+            if verbose:
+                print("    image still on screen. continuing check...")
         else:
-            print("-- Image not found on the screen. Returning True.")
+            if verbose:
+                print("    image no longer on screen. returning true.")
             return True
 
         elapsed_time = time.time() - start_time
         if elapsed_time > max_check_time:
-            print("-- Maximum check time exceeded. Stopping check. Assume it does not exist")
-            return True
+            print("    max check time reached. assuming image still present.")
+            return False
 
         time.sleep(check_interval)
 
 
-def check_image_birth_and_death(image_path, max_check_time_appear=3, max_check_time_disappear=10):
+def check_image_birth_and_death(image_path, max_check_time_appear=3, max_check_time_disappear=10, verbose=False):
     birth = check_image_appearance(image_path, max_check_time=max_check_time_appear)
     if birth:
-        print('- Image appeared')
+        if verbose:
+            print('    image appeared on screen')
         death = check_image_disappearance(image_path, max_check_time=max_check_time_disappear)
-        print('- Image disappeared')
+        if verbose:
+            print('    image disappeared from screen')
     else:
-        print('- Image has not appeared')
+        if verbose:
+            print('    image did not appear within expected time')
         death = True
     return birth, death
 
@@ -186,7 +215,7 @@ def type_string(input_string):
         input_string (str): The string to be typed.
     """
     pyautogui.typewrite(input_string)
-    print(f"Typed string: {input_string}")
+    print(f"    typed: '{input_string}'")
 
 
 def press_enter():
@@ -194,7 +223,7 @@ def press_enter():
     Presses the Enter key.
     """
     pyautogui.press('enter')
-    print("Pressed Enter key.")
+    print("    pressed: enter key")
 
 
 def press_esc():
@@ -202,34 +231,30 @@ def press_esc():
     Presses the ESC key.
     """
     pyautogui.press('esc')
-    print("Pressed ESC key.")
+    print("    pressed: esc key")
 
 
 def press_key(key):
     """
-    Presses the a key.
+    Presses a specified key.
     """
     pyautogui.press(key)
-    print(f"Pressed '{key}' key.")
-
-
+    print(f"    pressed: '{key}' key")
 
 
 def move_cursor_to(x, y):
     pyautogui.moveTo(x, y)
-    print(f"Cursor moved to coordinates: ({x}, {y})")
-
+    print(f"    moved cursor to: ({x}, {y})")
 
 
 def on_click(x, y, button, pressed):
     if pressed:
-        print(f"Mouse clicked at ({x}, {y})")
-        # 클릭 후 바로 리스너를 멈추려면 아래 줄을 추가합니다.
+        print(f"    mouse clicked at: ({x}, {y})")
         return False
 
 
 def get_click_coordinates():
-    # 마우스 클릭 리스너를 시작합니다.
+    print("    waiting for mouse click...")
     with mouse.Listener(on_click=on_click) as listener:
         listener.join()
 
@@ -243,4 +268,4 @@ def click_at_coordinates(x, y):
         y (int): The y-coordinate where the click should occur.
     """
     pyautogui.click(x, y)
-    print(f"Clicked at coordinates: ({x}, {y})")
+    print(f"    clicked at: ({x}, {y})")
