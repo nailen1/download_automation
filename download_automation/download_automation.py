@@ -161,7 +161,7 @@ class MOS:
         bucket_prefix = f'dataset-menu{self.menu_code}'
         if self.file_name == self.file_name_snapshot and self.menu_code:
             bucket_prefix = f'dataset-menu{self.menu_code}'
-        if self.file_name == self.file_name_snapshot and self.menu_code in menu_codes_snapshot:
+        if self.file_name == self.file_name_snapshot and self.fund_code == '' and self.menu_code in menu_codes_snapshot:
             bucket_prefix = f'dataset-menu{self.menu_code}-snapshot'
         self.bucket_prefix = bucket_prefix
         return bucket_prefix
@@ -318,6 +318,7 @@ def get_input_dates_downloaded_in_file_folder(menu_code, file_folder=None, form=
 
 
 def download_all_snapshot_datasets_of_timeseries(menu_code, start_date=date_genesis_real, end_date=get_date_n_days_ago(get_today("%Y-%m-%d"),1)):
+    print(f'- download all snapshot datasets: menu{menu_code}')
     dates = get_date_range(start_date_str=start_date, end_date_str=end_date)
     dates_downloaded = get_input_dates_downloaded_in_file_folder(menu_code, file_folder=os.path.join(base_folder_path, f'dataset-menu{menu_code}-snapshot'), form='%Y-%m-%d')
     if dates_downloaded != []:

@@ -52,7 +52,7 @@ def check_folder_arrows():
     return birth_confirmation
 
 def close_excel():
-    print(f'- (step): terminate Excel.')
+    print(f'- (step) terminate Excel.')
     wait_for_n_seconds(2)
     subprocess.run(['taskkill', '/F', '/IM', 'excel.exe'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 

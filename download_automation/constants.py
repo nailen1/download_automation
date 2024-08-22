@@ -14,7 +14,8 @@ DATE_GENESIS = '2020-01-01'
 DATE_GENESIS_REAL = '2020-05-28'
 
 # Base directory
-BASE_DIR = os.path.abspath(os.path.dirname('__file__'))
+# BASE_DIR = os.path.abspath(os.path.dirname('__file__'))
+BASE_DIR = "C:\\dev-system\\module-download_automation"
 
 # Coordinate directory
 COORDINATE_FOLDER = os.path.join(BASE_DIR, 'data', 'dataset-coordinate')

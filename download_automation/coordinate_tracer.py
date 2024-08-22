@@ -6,11 +6,12 @@ import time
 import os
 import pandas as pd
 from shining_pebbles import *
+from constants import COORDINATE_FOLDER
 
 class Tracer:
     def __init__(self, subject):
         self.subject = subject
-        self.file_folder = check_folder_and_create_folder('./dataset-coordinate')
+        self.file_folder = check_folder_and_create_folder(COORDINATE_FOLDER)
         self.file_name = f'dataset-coordinate-{subject}-save{get_today("%Y%m%d%H")}.csv'
 
     def record_coordinates(self):
