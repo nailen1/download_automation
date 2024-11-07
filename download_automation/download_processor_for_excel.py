@@ -8,15 +8,15 @@ import psutil
 import subprocess
 
 # Internal modules
-from screen_control_utils import *
-from constants import *
+from .screen_control_utils import *
+from .constants import *
 
 
 # Screen size
 screen_width, screen_height = size()
 
 def is_on_running_excel():
-    print('- (step) checking excel is running ...')
+    print('| (step) checking excel is running ...')
     wait_for_n_seconds(1)
     caution = check_image_appearance(IMAGE_PATH_EXCEL_HEADER, max_check_time=3)
     if caution:
@@ -27,7 +27,7 @@ def is_on_running_excel():
         return False
 
 def is_on_excel_save_as_popup():
-    print('- (step) checking excel save as popup ...')
+    print('| (step) checking excel save as popup ...')
     wait_for_n_seconds(2)
     caution = check_image_appearance(IMAGE_PATH_EXCEL_FOLDER_ARROWS, max_check_time=3)
     if caution:
@@ -52,7 +52,7 @@ def check_folder_arrows():
     return birth_confirmation
 
 def close_excel():
-    print(f'- (step) terminate Excel.')
+    print(f'| (step) terminate Excel.')
     wait_for_n_seconds(2)
     subprocess.run(['taskkill', '/F', '/IM', 'excel.exe'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
@@ -84,7 +84,7 @@ def goto_home():
 
 def is_dataset_downloaded(fund_code, save_file_folder, file_name):
     regex_file_name = file_name.split('.csv')[0][:-1]
-    print(f"- (step) check existence of dataset")
+    print(f"| (step) check existence of dataset")
     print(f"|- is '{regex_file_name}' downloaded in '{save_file_folder}'?")
     lst = scan_files_including_regex(save_file_folder, regex_file_name)
     if len(lst) == 0:
@@ -93,13 +93,23 @@ def is_dataset_downloaded(fund_code, save_file_folder, file_name):
     else:
         print(f'|- yes: {fund_code} in {save_file_folder}')
         return True
+    
+
+def delete_file(file_folder, file_name):
+    file_path = os.path.join(file_folder, file_name)
+    if os.path.isfile(file_path):
+        os.remove(file_path)
+        print(f"{file_path} deleted.")
+    else:
+        print(f"{file_path} not found.")
+
 
 def control_on_excel_to_save_as_popup():
     if is_on_running_excel():
         pass
     else:
         control_on_excel_to_save_as_popup()
-    print(f'- (step) open save as popup.')
+    print(f'| (step) open save as popup.')
     wait_for_n_seconds(2)
     press(KEY_SAVE_AS_WINDOWS)
     wait_for_n_seconds(1)
@@ -110,7 +120,7 @@ def control_on_save_as_popup(file_folder, file_name):
     else: 
         raise Exception("No save as popup. Folder arrows not found.")
 
-    print(f'- (step) input save settings.')
+    print(f'| (step) input save settings.')
     typewrite(file_name)
     wait_for_n_seconds(1)
     press('tab')
@@ -129,4 +139,4 @@ def control_on_save_as_popup(file_folder, file_name):
         wait_for_n_seconds(1)
         hotkey('alt', 'y')
     else:
-        print('- (step) save complete.')
+        print('| (step) save complete.')

@@ -1,0 +1,4 @@
+﻿step,screen_size,absolute_coord,relative_coord,sequence
+1,"(2560, 1440)","(1008, 36)","(0.3937, 0.025)",input_menu_code
+2,"(2560, 1440)","(1091, 127)","(0.4262, 0.0882)",button_search
+3,"(2560, 1440)","(353, 248)","(0.1379, 0.1722)",button_excel

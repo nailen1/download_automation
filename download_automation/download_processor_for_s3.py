@@ -1,7 +1,6 @@
 # download_processor_for_s3.py
 # S3 UPLOAD GENERAL
 
-
 from shining_pebbles import *
 from aws_s3_controller import *
 import pandas as pd
@@ -15,18 +14,16 @@ def validate_download_process(file_folder, file_name, exception=False):
     rows = shape[0]
     print(f'-- {rows} rows in dataset.')
     if rows > 0:
-        print(f'- step: download complete.')
+        print(f'⭕: download complete.')
         return True
     else:
-        print(f'- step: download failed.')
+        print(f'❌: download failed.')
         return False
     
 
 def upload_downloaded_dataset_to_s3(file_folder, file_name, bucket_prefix, bucket='dataset-system'):
     upload_files_to_s3(file_folder_local=file_folder, regex=file_name, bucket=bucket, bucket_prefix=bucket_prefix)
-    print(f'- step: uploading dataset to S3://{bucket}/{bucket_prefix} complete.')
-
-
+    print(f'🪣: uploading dataset to S3://{bucket}/{bucket_prefix} complete.')
 
 
 def get_df_fundlist_from_menu2160_snapshots_in_s3(input_date=None, category='all'):

@@ -6,7 +6,8 @@ import time
 import os
 import pandas as pd
 from shining_pebbles import *
-from constants import COORDINATE_FOLDER
+from .constants import COORDINATE_FOLDER
+from .sequences_reference import *
 
 class Tracer:
     def __init__(self, subject):

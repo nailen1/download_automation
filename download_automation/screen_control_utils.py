@@ -8,6 +8,7 @@ import pyautogui
 from pyautogui import click
 from pynput import mouse
 from typing import List, Dict, Optional, Tuple
+from .constants import *
 
 
 def wait_for_n_seconds(n: int, verbose: bool = False) -> None:
@@ -78,7 +79,7 @@ def move_to_image(image_path, confidence_level=0.8, timeout=10):
             if location:
                 pyautogui.moveTo(location)
                 return True
-        except ImageNotFoundException:
+        except Exception:
             print(f"    could not find the image '{image_path}'. assuming it is not present.")
             return False
 
@@ -205,6 +206,69 @@ def check_image_birth_and_death(image_path, max_check_time_appear=3, max_check_t
             print('    image did not appear within expected time')
         death = True
     return birth, death
+
+
+def wait_until_image_appears(image_path, max_retries=20, wait_time=1, enforce=False):
+    """
+    Waits until a specified image appears on the screen.
+    - If the image is not initially on the screen, this function checks periodically until it appears.
+    - If enforce=True, the function will return True after all attempts, regardless of the image's presence.
+
+    Args:
+        image_path (str): Path to the image file to look for.
+        max_retries (int): Maximum number of attempts to check for the image.
+        wait_time (int): Time to wait (in seconds) between each attempt.
+        enforce (bool): If True, forces the function to return True after all retries.
+
+    Returns:
+        bool: True if the image appears or if enforce=True, False if the image does not appear after max retries.
+    """
+    for attempt in range(1, max_retries + 1):
+        print(f"|-- Waiting for image to appear (attempt {attempt})...")
+
+        if find_image_on_screen(image_path):
+            print("|-- Image appeared.")
+            return True
+
+        wait_for_n_seconds(wait_time)
+
+    if enforce:
+        print("|-- Enforce mode active. Returning True after max retries.")
+        return True
+
+    print("|-- Max retries reached. Image did not appear.")
+    return False
+
+def wait_until_image_disappears(image_path, max_retries=20, wait_time=1, enforce=False):
+    """
+    Waits until a specified image disappears from the screen.
+    - If the image is initially on the screen, this function checks periodically until it disappears.
+    - If enforce=True, the function will return True after all attempts, regardless of the image's presence.
+
+    Args:
+        image_path (str): Path to the image file to look for.
+        max_retries (int): Maximum number of attempts to check for the image.
+        wait_time (int): Time to wait (in seconds) between each attempt.
+        enforce (bool): If True, forces the function to return True after all retries.
+
+    Returns:
+        bool: True if the image disappears or if enforce=True, False if the image does not disappear after max retries.
+    """
+    for attempt in range(1, max_retries + 1):
+        print(f"|-- Waiting for image to disappear (attempt {attempt})...")
+
+        if not find_image_on_screen(image_path):
+            print("|-- Image disappeared.")
+            return True
+
+        wait_for_n_seconds(wait_time)
+
+    if enforce:
+        print("|-- Enforce mode active. Returning True after max retries.")
+        return True
+
+    print("|-- Max retries reached. Image did not disappear.")
+    return False
 
 
 def type_string(input_string):
