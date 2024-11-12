@@ -38,10 +38,10 @@ def assign_office_system_type(windows):
     for window in windows:
         if is_this_window_mos(window):
             dct_window['MOS'] = window
-            print('|- set operating window as mos')
+            print('|- set operating window as (MOS)')
         elif is_this_window_bos(window):
             dct_window['BOS'] = window
-            print('|- set operating window as bos')
+            print('|- set operating window as (BOS)')
         window.minimize()
         wait_for_n_seconds(0.5)
     return dct_window

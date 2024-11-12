@@ -2,7 +2,7 @@ from .activator_utils import *
 
 class Activator:
     def __init__(self):
-        self.title = '라이프자산운용'
+        self.title = PROCESS_NAME
         print('|- setting initial configurations ...')
         self.mos, self.bos = self.set_office_systems()
         self.set_canonical_settings()

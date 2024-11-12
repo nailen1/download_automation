@@ -3,8 +3,9 @@ import csv
 from tqdm import tqdm
 from .constants import *
 from .office_system import *
+from .date_utils import *
+from .existings_picker import *
 
-FUND_CODES_PRIORITEZED = ['100004', '100019', '100030', '100060', '100077', '100114']
 
 def get_input_dates_downloaded_in_file_folder(menu_code, file_folder=None, form='%Y%m%d'):
     file_folder = os.path.join(BASE_FOLDER_PATH, f'dataset-menu{menu_code}') if file_folder is None else file_folder
@@ -15,7 +16,7 @@ def get_input_dates_downloaded_in_file_folder(menu_code, file_folder=None, form=
     return input_dates_downloaded
 
 
-def download_all_snapshot_datasets_of_timeseries(menu_code, start_date=DATE_GENESIS_REAL, end_date=get_date_n_days_ago(get_today("%Y-%m-%d"),1)):
+def download_all_snapshot_datasets_of_timeseries(menu_code, start_date=DATE_GENESIS_REAL, end_date=get_yesterday()):
     print(f'- download all snapshot datasets: menu{menu_code}')
     dates = get_date_range(start_date_str=start_date, end_date_str=end_date)
     dates_downloaded = get_input_dates_downloaded_in_file_folder(menu_code, file_folder=os.path.join(BASE_FOLDER_PATH, f'dataset-menu{menu_code}-snapshot'), form='%Y-%m-%d')
@@ -143,8 +144,8 @@ def check_download_folders_in_root(folder_regex):
 
 def download_all_snapshot_datasets(menu_code='2205', input_date=None, fund_codes=None, category='all'):
     input_date = input_date or get_date_n_days_ago(get_today("%Y%m%d"),1)
-    df_fundlist = get_df_fundlist_from_menu2160_snapshots_in_s3(category=category)
-    
+
+    df_fundlist = get_df_fundlist_from_menu2160_snapshots_in_s3(category=category)    
     fund_codes_prioritized = FUND_CODES_PRIORITEZED
     for fund_code in tqdm(fund_codes_prioritized):
         mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
@@ -161,30 +162,29 @@ def download_all_snapshot_datasets(menu_code='2205', input_date=None, fund_codes
         mos.recursive_download_dataset()
 
     save_download_log_of_sanpshot_datasets(file_folder=f'dataset-menu{menu_code}', input_date=input_date)
-
     return None
 
 
-def download_menu2205s_of_all_funds(menu_code='2205', input_date=None, category='all'):
-    input_date = input_date or get_date_n_days_ago(get_today("%Y%m%d"),1)
-    df_fundlist = get_df_fundlist_from_menu2160_snapshots_in_s3(category=category)
+def download_all_period_datasets(menu_code='8870', date_pairs=None):
+    date_pairs_nonexistent = pick_nonexistent_date_pairs_in_period_datasets(menu_code='8870', date_pairs=DATE_PAIRS_DEFAULT)
+    date_pairs = date_pairs or date_pairs_nonexistent
 
-    fund_codes_prioritized = FUND_CODES_PRIORITEZED
-    for fund_code in tqdm(fund_codes_prioritized):
-        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
+    for date_pair in tqdm(date_pairs):
+        start_date, end_date = date_pair
+        mos = OfficeSystem(menu_code=menu_code, start_date=start_date, end_date=end_date)
         mos.recursive_download_dataset()
+    return None
 
-    fund_codes = df_fundlist.index.tolist()
-    fund_codes_downloaded = get_fund_codes_downloaded_in_file_folder(menu_code=menu_code, input_date=input_date)
-    if fund_codes_downloaded != []:
-        print(f'{len(fund_codes_downloaded)}/{len(fund_codes)} funds downloaded: ... {fund_codes_downloaded[-1]}')
-        fund_codes = list(set(fund_codes) - set(fund_codes_downloaded))
 
-    fund_codes = sorted(fund_codes)
+def download_all_timeseries_datasets(menu_code='2160', fund_codes=None, start_date=None, end_date=None, category='all'):
+    start_date = start_date or DATE_GENESIS
+    end_date = end_date or get_yesterday()
+    fund_codes_nonexistent = pick_nonexistent_fund_codes_in_timeseries_datasets(menu_code, (start_date, end_date), category=category)
+    fund_codes = fund_codes or fund_codes_nonexistent
+    
     for fund_code in tqdm(fund_codes):
-        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
+        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, start_date=start_date, end_date=end_date)
         mos.recursive_download_dataset()
 
-    save_download_log_of_sanpshot_datasets(file_folder=f'dataset-menu{menu_code}', input_date=input_date)
-
+    save_download_log_of_timeseries_datasets(file_folder=f'dataset-menu{menu_code}', end_date=end_date)
     return None

@@ -6,10 +6,9 @@ from tqdm import tqdm
 def main():
     activator = Activator()
     activator.on_mos()
-
     download_all_snapshot_datasets_of_timeseries(end_date=get_yesterday(),  menu_code='2160')
     download_all_snapshot_datasets_of_timeseries(end_date=get_yesterday(), menu_code='2820')
-    download_every_snapshot_dataset_of_fund(input_date=get_yesterday(), menu_code='2205')
+    download_all_snapshot_datasets(input_date=get_yesterday(), menu_code='2205')
     download_all_snapshot_datasets_of_timeseries(menu_code='2205')
 
     input_date = get_yesterday()
@@ -24,10 +23,6 @@ def main():
     for menu_code in tqdm(bos_menu_codes):
         bos = OfficeSystem(menu_code=menu_code, input_date=input_date)
         bos.recursive_download_dataset()
-
-    activator.on_mos()
-    download_every_timeseries_dataset_of_fund(menu_code='2160')
-
 
 if __name__ == "__main__":
     main()

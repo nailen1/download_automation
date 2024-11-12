@@ -20,7 +20,7 @@ menu_codes_validate_exception = ['4604', '2820']
 
 MENU_CODES_SNAPSHOT = ['2205']
 MENU_CODES_TIMESERIES_BUT_SNAPSHOT = ['2160', '2820', '8186']
-MENU_CODES_PERIOD = ['4165', '4604', '4110']
+MENU_CODES_PERIOD = ['4165', '4604', '4110', '8870']
 MENU_CODES_HAVING_FAST_EXCEL_EXECUTION = ['4604', '2205', '2820']
 MENU_CODES_VALIDATE_EXCEPTION = ['4604', '2820']
 
@@ -82,7 +82,7 @@ class OfficeSystem:
     def set_bucket(self):
         bucket = BUCKET_NAME_SYSYTEM
         self.bucket = bucket
-        return
+        return bucket
 
     def set_bucket_prefix(self):
         bucket_prefix = self.file_folder_name
