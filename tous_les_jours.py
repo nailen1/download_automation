@@ -12,6 +12,7 @@ def run_download_tasks():
     download_all_snapshot_datasets_of_timeseries(end_date=get_yesterday(), menu_code='2820')
     download_all_snapshot_datasets(input_date=get_yesterday(), menu_code='2205')
     download_all_snapshot_datasets_of_timeseries(menu_code='2205')
+    
     input_date = get_yesterday()
     mos_menu_codes = ['3412', '2110']
     for menu_code in tqdm(mos_menu_codes):

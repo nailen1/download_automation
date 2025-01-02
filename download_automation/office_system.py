@@ -418,6 +418,8 @@ def set_dates_by_initial_inputs(input_date, start_date, end_date, menu_code):
 def set_file_folder(menu_code, fund_code):
     if menu_code in MENU_CODES_TIMESERIES_BUT_SNAPSHOT and fund_code == '':
         file_folder = f'dataset-menu{menu_code}-snapshot'
+    elif menu_code in MENU_CODES_SNAPSHOT and fund_code == '':
+        file_folder = f'dataset-menu{menu_code}-snapshot'
     else:
         file_folder = f'dataset-menu{menu_code}'
     return file_folder

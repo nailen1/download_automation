@@ -6,6 +6,13 @@ from .office_system import *
 from .date_utils import *
 from .existings_picker import *
 
+def get_all_fund_codes():
+    df_fundlist = get_df_fundlist_from_menu2160_snapshots_in_s3()    
+    fund_codes = df_fundlist.index.tolist()
+    return fund_codes
+
+FUND_CODES_ALL = get_all_fund_codes()
+
 
 def get_input_dates_downloaded_in_file_folder(menu_code, file_folder=None, form='%Y%m%d'):
     file_folder = os.path.join(BASE_FOLDER_PATH, f'dataset-menu{menu_code}') if file_folder is None else file_folder
@@ -85,7 +92,8 @@ def save_download_log_of_timeseries_datasets(file_folder, end_date):
         }
         bucket.append(dct)
     df = pd.DataFrame(bucket)
-    df['fund_code'] = df['fund_code'].astype(str).apply(lambda x: x.zfill(6) if len(x) <= 6 else x)
+    # df['fund_code'] = df['fund_code'].astype(str).apply(lambda x: x.zfill(6) if len(x) <= 6 else x)
+    df['fund_code'] = df['fund_code'].astype(str).apply(lambda x: f'{x.zfill(6)}' if len(x) <= 6 else x)
     file_folder_log = os.path.join(BASE_FOLDER_PATH, 'dataset-log')
     check_folder_and_create_folder(file_folder_log)
     file_name = f'log-{file_folder}-to{end_date.replace("-","")}-save{get_today("%Y%m%d%H")}.csv'
@@ -123,7 +131,7 @@ def save_download_log_of_sanpshot_datasets(file_folder, input_date):
         }
         bucket.append(dct)
     df = pd.DataFrame(bucket)
-    df['fund_code'] = df['fund_code'].astype(str).apply(lambda x: x.zfill(6) if len(x) <= 6 else x)
+    df['fund_code'] = df['fund_code'].astype(str).apply(lambda x: f'{x.zfill(6)}' if len(x) <= 6 else x)
     file_folder_log = os.path.join(BASE_FOLDER_PATH, 'dataset-log')
     check_folder_and_create_folder(file_folder_log)
     file_name = f'log-{file_folder}-at{input_date.replace("-","")}-save{get_today("%Y%m%d%H")}.csv'
