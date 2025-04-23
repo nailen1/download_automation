@@ -12,7 +12,7 @@ from .constants import *
 from .download_processor_for_excel import is_on_running_excel
 
 
-def is_now_search_loading(max_retries=20, attempt=1):
+def is_now_search_loading(max_retries=40, attempt=1):
     print(f'|- search loading ... (attempt {attempt})')
     wait_for_n_seconds(1)
     loading = check_image_appearance(IMAGE_PATH_LOADING_SEARCH_GO, max_check_time=5)

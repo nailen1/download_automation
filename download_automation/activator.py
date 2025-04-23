@@ -22,12 +22,14 @@ class Activator:
             else:
                 mos_is_running = True
             if mos_is_running and 'BOS' not in list_of_running_systems_initial:
-                print('|- (`BOS) is not running.')
+                print('|- (BOS) is not running.')
                 bos_is_running = execute_system('BOS')
             else:
                 bos_is_running = True
             if mos_is_running and bos_is_running:
+                wait_for_n_seconds(5)
                 windows = get_operating_windows_by_title(self.title)
+                print(len(windows))
                 running_systems = assign_office_system_type(windows)
                 print(f'|- set (MOS).')
                 self.mos = running_systems['MOS']

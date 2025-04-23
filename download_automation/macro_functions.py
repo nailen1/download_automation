@@ -154,8 +154,12 @@ def download_all_snapshot_datasets(menu_code='2205', input_date=None, fund_codes
     input_date = input_date or get_date_n_days_ago(get_today("%Y%m%d"),1)
 
     df_fundlist = get_df_fundlist_from_menu2160_snapshots_in_s3(category=category)    
-    fund_codes_prioritized = FUND_CODES_PRIORITEZED
-    for fund_code in tqdm(fund_codes_prioritized):
+
+    for fund_code in tqdm(FUND_CODES_PRIORITEZED):
+        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
+        mos.recursive_download_dataset()
+
+    for fund_code in tqdm(FUND_CODES_MENU2205_PRIORITY):
         mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
         mos.recursive_download_dataset()
 

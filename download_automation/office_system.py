@@ -19,7 +19,7 @@ menu_codes_having_fast_excel_execution = ['4604', '2205', '2820']
 menu_codes_validate_exception = ['4604', '2820'] 
 
 MENU_CODES_SNAPSHOT = ['2205']
-MENU_CODES_TIMESERIES_BUT_SNAPSHOT = ['2160', '2820', '8186']
+MENU_CODES_TIMESERIES_BUT_SNAPSHOT = ['2160', '2820', '8186', '4165']
 MENU_CODES_PERIOD = ['4165', '4604', '4110', '8870']
 MENU_CODES_HAVING_FAST_EXCEL_EXECUTION = ['4604', '2205', '2820']
 MENU_CODES_VALIDATE_EXCEPTION = ['4604', '2820']
@@ -29,7 +29,7 @@ BUCKET_NAME_SYSYTEM = 'dataset-system'
 
 class OfficeSystem:
     def __init__(self, menu_code, fund_code=None,  input_date=None, start_date=None, end_date=None, file_folder=None, file_name=None):
-        self.menu_code = menu_code
+        self.menu_code = self.set_menu_code(menu_code)
         self.fund_code =self.set_default_fund_code(fund_code)
         self.date = self.set_default_dates(input_date, start_date, end_date, menu_code)
         self.input_date = self.date['input_date']
@@ -43,6 +43,16 @@ class OfficeSystem:
         self.coordinates = self.get_coordinates()
         self.relative_coordinates = self.get_relative_coordinates()
         
+    def set_menu_code(self, menu_code):
+        mapping_menu_code = {
+            '2205s': '2205'
+        }
+        self.menu_code = mapping_menu_code.get(menu_code, menu_code) or ''
+        self.menu_code_present = menu_code
+        print('self.menu_code', self.menu_code)
+        print('self.menu_code_present', self.menu_code_present)
+        return self.menu_code
+    
     def set_default_fund_code(self, fund_code):
         fund_code = fund_code or ''
         self.fund_code = fund_code
@@ -65,9 +75,9 @@ class OfficeSystem:
     
     def set_default_file_name(self, file_name=None):
         fund_code_in_file_name = '000000' if self.fund_code == '' else self.fund_code
-        file_name_snapshot = f'menu{self.menu_code}-code{fund_code_in_file_name}-at{self.input_date}-save{get_today(form="yyyymmdd")}.csv'
-        file_name_timeseries = f'menu{self.menu_code}-code{fund_code_in_file_name}-from{self.start_date}-to{self.end_date}-save{get_today(form="yyyymmdd")}.csv'
-        file_name_period = f'menu{self.menu_code}-code{fund_code_in_file_name}-between{self.start_date}-and{self.end_date}-save{get_today(form="yyyymmdd")}.csv'
+        file_name_snapshot = f'menu{self.menu_code_present}-code{fund_code_in_file_name}-at{self.input_date}-save{get_today(form="yyyymmdd")}.csv'
+        file_name_timeseries = f'menu{self.menu_code_present}-code{fund_code_in_file_name}-from{self.start_date}-to{self.end_date}-save{get_today(form="yyyymmdd")}.csv'
+        file_name_period = f'menu{self.menu_code_present}-code{fund_code_in_file_name}-between{self.start_date}-and{self.end_date}-save{get_today(form="yyyymmdd")}.csv'
 
         if self.input_date != None:
             file_name = file_name_snapshot
@@ -250,6 +260,20 @@ class OfficeSystem:
         wait_for_n_seconds(3)
         return None
 
+    def execute_button_dropdown_period(self):
+        print(f'| (step) click dropdown input for period')
+        coord = self.get_coord_of_sequence('button_dropdown_period')
+        click_button(coord_button=coord)
+        wait_for_n_seconds(1)
+        return None
+    
+    def execute_button_select_alldays(self):
+        print(f'| (step) click select alldays button')
+        coord = self.get_coord_of_sequence('button_select_alldays')
+        click_button(coord_button=coord)
+        wait_for_n_seconds(1)
+        return None
+
     def execute_cancel_no_data_popup(self):
         print(f'| (step) cancel no data popup')
         if is_there_no_data_popup():
@@ -284,6 +308,8 @@ class OfficeSystem:
             'button_excel': self.execute_button_excel,
             'button_excel_popup': self.execute_button_excel_popup,
             'button_tab_category': self.execute_button_tab_category,
+            'button_dropdown_period': self.execute_button_dropdown_period,
+            'button_select_alldays': self.execute_button_select_alldays,
         }
         return mapping_sequence[sequence]()
     

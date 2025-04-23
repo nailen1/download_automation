@@ -30,7 +30,7 @@ def get_df_fundlist_from_menu2160_snapshots_in_s3(input_date=None, category='all
     if input_date:
         df = open_df_in_bucket_by_regex(bucket='dataset-system', bucket_prefix='dataset-menu2160-snapshot', regex=f'menu2160-code000000-at{input_date}')
     df = open_df_in_bucket_by_regex(bucket='dataset-system', bucket_prefix='dataset-menu2160-snapshot', regex='menu2160-code000000')
-    ref_date = df.iloc[-1]['일자']
+    ref_date = df.reset_index().iloc[-1]['일자']
     df = df[['펀드명', '펀드']].iloc[1:, :].set_index('펀드')
     df.index.name = '펀드코드'
     df.columns.name = ref_date
