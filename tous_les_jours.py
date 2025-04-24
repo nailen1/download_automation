@@ -14,8 +14,9 @@ def run_download_tasks():
     download_all_snapshot_datasets_of_timeseries(end_date=get_yesterday(), menu_code='2160')
     download_all_snapshot_datasets_of_timeseries(end_date=get_yesterday(), menu_code='2820')
     download_all_snapshot_datasets_of_timeseries(end_date=get_yesterday(), menu_code='2205')
-    download_all_snapshot_datasets(input_date=get_yesterday(), menu_code='2205')
-    
+    # download_all_snapshot_datasets(input_date=get_yesterday(), menu_code='2205')
+    download_main_funds_snapshot_datasets(input_date=get_yesterday(), menu_code='2205')
+
     input_date = get_yesterday()
     mos_menu_codes = ['3412']
     for menu_code in tqdm(mos_menu_codes):
@@ -56,6 +57,13 @@ def run_download_tasks():
             m.fetch_unit_df()
             m.insert_unit()
 
+    download_class_funds_snapshot_datasets(input_date=get_yesterday(), menu_code='2205')
+    dates_and_codes = get_nonexisting_pairs_date_code_for_menu2205()
+    for date, code in tqdm(dates_and_codes):
+        if date == get_yesterday():
+            m = Menu2205(fund_code=code, date_ref=date)
+            m.fetch_unit_df()
+            m.insert_unit()
 
 
     # 매주 토요일에 추가 작업 실행
@@ -93,7 +101,7 @@ def print_remaining_time():
 
 def main(enforce):
     # 매일 05:00에 다운로드 작업 예약
-    schedule.every().day.at("03:30").do(run_download_tasks)
+    schedule.every().day.at("04:00").do(run_download_tasks)
 
     # 매주 토요일 05:00에 추가 작업도 포함한 다운로드 작업 예약
     schedule.every().saturday.at("05:00").do(run_download_tasks)

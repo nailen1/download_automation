@@ -5,6 +5,7 @@ from .constants import *
 from .office_system import *
 from .date_utils import *
 from .existings_picker import *
+from .fund_categories import *
 
 def get_all_fund_codes():
     df_fundlist = get_df_fundlist_from_menu2160_snapshots_in_s3()    
@@ -170,6 +171,44 @@ def download_all_snapshot_datasets(menu_code='2205', input_date=None, fund_codes
         fund_codes = list(set(fund_codes) - set(fund_codes_downloaded))
     fund_codes = sorted(fund_codes)
     for fund_code in tqdm(fund_codes):
+        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
+        mos.recursive_download_dataset()
+
+    save_download_log_of_sanpshot_datasets(file_folder=f'dataset-menu{menu_code}', input_date=input_date)
+    return None
+
+
+def download_main_funds_snapshot_datasets(menu_code='2205', input_date=None):
+    input_date = input_date or get_date_n_days_ago(get_today("%Y%m%d"),1)
+
+    for fund_code in tqdm(FUND_CODES_PRIORITEZED):
+        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
+        mos.recursive_download_dataset()
+
+    for fund_code in tqdm(FUND_CODES_MENU2205_PRIORITY):
+        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
+        mos.recursive_download_dataset()
+
+    for fund_code in tqdm(get_fund_codes_mothers()):
+        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
+        mos.recursive_download_dataset()
+
+    for fund_code in tqdm(get_fund_codes_nonclassified()):
+        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
+        mos.recursive_download_dataset()
+
+    for fund_code in tqdm(get_fund_codes_general()):
+        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
+        mos.recursive_download_dataset()
+
+    save_download_log_of_sanpshot_datasets(file_folder=f'dataset-menu{menu_code}', input_date=input_date)
+    return None
+
+
+def download_class_funds_snapshot_datasets(menu_code='2205', input_date=None):
+    input_date = input_date or get_date_n_days_ago(get_today("%Y%m%d"),1)
+
+    for fund_code in tqdm(get_fund_codes_nonclassified()):
         mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
         mos.recursive_download_dataset()
 
