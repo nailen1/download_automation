@@ -41,6 +41,5 @@ yarn.lock
 Dockerfile
 docker-compose.yml
 
-# ▶ Other local data & documentation
-data/
+# ▶ Private documentation
 _docs/
