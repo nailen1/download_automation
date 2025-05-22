@@ -1,46 +1,46 @@
-# virtualenv
+# ▶ Python environments & cache
 venv/
-# IDE
+env-*/
+__pycache__/
+*.py[cod]
+*.pyo
+
+# ▶ IDE & editor settings
+.vscode/
 .idea/
-# logs
+
+# ▶ Logs & temporary files
+*.log
 logs/
-# database
+*.swp
+.DS_Store
+Thumbs.db
+
+# ▶ Web app & backend (e.g. Django, Flask)
 db.sqlite3
-# compiled python
-*.pyc
-# local settings
 local_settings.py
-# static files
-static/
-# media files
-media/
-# secret key
 secret_key.txt
-# environment
+
+# ▶ Static & media files
+static/
+media/
+
+# ▶ Environment configuration
 .env
-# docker
+
+# ▶ Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# ▶ Node.js & frontend dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# ▶ Docker
 Dockerfile
 docker-compose.yml
-# vscode
-.vscode/
-# python
-*.pyc
-*.pyo
-*.pyd
-__pycache__/
-# jupyter
-.ipynb_checkpoints/
-# node
-node_modules/
-# npm
-package-lock.json
-# yarn
-yarn.lock
-# mac
-.DS_Store
-# windows
-Thumbs.db
-# linux
-*.swp
-*.ipynb
+
+# ▶ Other local data & documentation
 data/
+_docs/
