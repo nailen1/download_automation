@@ -11,10 +11,10 @@ def str_to_float_tuple(s):
 
 def preprocess_recorded_coordinates(df):
     cols = df.columns
-    for i, col in enumerate(cols):
-        if i in [0, 1]:
+    for col in cols:
+        if col in ['screen_size', 'absolute_coord']:
             df[col] = df[col].apply(lambda x:str_to_tuple(x))
-        elif i in [2]:
+        elif col in ['relative_coord']:
             df[col] = df[col].apply(lambda x:str_to_float_tuple(x))
         else: 
             pass
@@ -23,19 +23,5 @@ def preprocess_recorded_coordinates(df):
 def load_menu_coordinates(menu_code):
     regex = f'dataset-coordinate-menu{menu_code}'
     df = load_csv_in_file_folder_by_regex(file_folder=FILE_FOLDER_COORDINATE, regex=regex)
+    df = preprocess_recorded_coordinates(df)
     return df
-
-def get_sequences_of_menu(menu_code):
-    df = load_menu_coordinates(menu_code)
-    sequences = list(df['sequence'])
-    return sequences
-
-def get_coordinates_of_menu(menu_code, coord_type='absolute_coord'):
-    # df = load_menu_coordinates(menu_code)
-    df = (
-        menu_code
-        .pipe(load_menu_coordinates)
-        .pipe(preprocess_recorded_coordinates)
-    )
-    coordinates = list(df[coord_type])
-    return coordinates
