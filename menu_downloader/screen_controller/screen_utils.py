@@ -6,6 +6,7 @@ from pyautogui import (
 )
 from .screen_basis import (
     wait_for_n_seconds,
+    move_to_image,
 )
 from .screen_time_consts import (
     TIME_INTERVAL_BETWWEN_CLICK_AND_KEYBOARD_CONTOL,
@@ -25,9 +26,15 @@ def input_something_on_input_field(coord_input, something, verbose=False):
     typewrite(list(something))
     return None
 
-def click_button(coord_button, verbose=False):
-    if verbose:
+def click_button(coord_button, option_verbose=False):
+    if option_verbose:
         print(f'- click button')
     click(coord_button)
+    return None
+
+def click_image(image_path, confidence, option_verbose=False):
+    move_to_image(image_path=image_path, confidence=confidence, option_verbose=option_verbose)
+    wait_for_n_seconds(TIME_INTERVAL_BETWWEN_CLICK_AND_KEYBOARD_CONTOL)
+    click()
     return None
 

@@ -71,7 +71,7 @@ def move_cursor_to_image(image_path):
         print("    image not found on the screen.")
 
   
-def move_to_image(image_path, confidence_level=0.8, timeout=10):
+def move_to_image(image_path, confidence_level=0.7, timeout=10):
     start_time = time.time()
     while True:
         try:
@@ -79,7 +79,8 @@ def move_to_image(image_path, confidence_level=0.8, timeout=10):
             if location:
                 pyautogui.moveTo(location)
                 return True
-        except Exception:
+        except Exception as e:
+            print(e)
             print(f"    could not find the image '{image_path}'. assuming it is not present.")
             return False
 

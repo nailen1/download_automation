@@ -4,6 +4,13 @@ import os
 BASE_DIR = "C:\\dev-system\\module-download_automation"
 IMAGE_FOLDER = os.path.join('assets', 'image-system')
 
+# refactored constants
+IMAGE_PATH_CIRCLE_LOADING_IDENTIFIER = os.path.join(IMAGE_FOLDER, 'circle_loading_identifier.png')
+IMAGE_PATH_BAR_LOADING_IDENTIFIER = os.path.join(IMAGE_FOLDER, 'bar_loading_identifier.png')
+IMAGE_PATH_DATA_LENGTH_POPUP_IDENTIFIER = os.path.join(IMAGE_FOLDER, 'data_length_popup_identifier.png')
+IMAGE_PATH_DATA_LENGTH_POPUP_CONFIRM_BUTTON_IDENTIFIER = os.path.join(IMAGE_FOLDER, 'data_length_popup_confirm_button_identifier.png')
+
+# old constants
 LOADING_SEARCH_GO = 'loading_search_go.png'
 LOADING_EXCEL_GO = 'loading_excel_go.png'
 EXCEL_HEADER = 'excel_header.png'
