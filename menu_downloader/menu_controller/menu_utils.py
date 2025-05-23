@@ -10,5 +10,7 @@ def execute_input_menu_code_and_press_enter(coord_input_menu, menu_code):
     return None
 
 def close_menu_window(coord_close_menu):
-    click_button(coord=coord_close_menu)
+    click_button(coord_button=coord_close_menu)
+    wait_for_n_seconds(1)
+    click_button(coord_button=coord_close_menu)
     return None

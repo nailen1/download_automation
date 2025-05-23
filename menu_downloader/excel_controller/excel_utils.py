@@ -35,7 +35,7 @@ def is_excel_save_caution_popup():
 def is_on_running_excel():
     print('| (step) checking excel is running ...')
     wait_for_n_seconds(1)
-    caution = wait_until_image_appears(IMAGE_PATH_EXCEL_IDENTIFIER, max_check_time=3)
+    caution = wait_until_image_appears(image_path=IMAGE_PATH_EXCEL_IDENTIFIER)
     if caution:
         print('|- excel is running.')
         return True
@@ -46,7 +46,7 @@ def is_on_running_excel():
 def is_on_excel_save_as_popup():
     print('| (step) checking excel save as popup ...')
     wait_for_n_seconds(2)
-    save_as_popup = wait_until_image_appears(IMAGE_PATH_EXCEL_SAVE_AS_POPUP_IDENTIFIER, max_check_time=3)
+    save_as_popup = wait_until_image_appears(image_path=IMAGE_PATH_EXCEL_SAVE_AS_POPUP_IDENTIFIER)
     if save_as_popup:
         print('|- excel save as popup appeared.')
         return True
@@ -55,7 +55,7 @@ def is_on_excel_save_as_popup():
         return False
 
 def check_folder_arrows():
-    folder_arrows = wait_until_image_appears(IMAGE_PATH_EXCEL_FOLDER_ARROWS, max_check_time=10)
+    folder_arrows = wait_until_image_appears(image_path=IMAGE_PATH_EXCEL_FOLDER_ARROWS)
     wait_for_n_seconds(1)
     return folder_arrows
 
@@ -90,16 +90,16 @@ def goto_home():
     print(f'(step) finish download cycle.')
     print()
 
-def is_dataset_downloaded(fund_code, save_file_folder, file_name):
+def is_dataset_downloaded(save_file_folder, file_name):
     regex_file_name = file_name.split('.csv')[0][:-1]
     print(f"| (step) check existence of dataset")
     print(f"|- is '{regex_file_name}' downloaded in '{save_file_folder}'?")
     lst = scan_files_including_regex(save_file_folder, regex_file_name)
     if len(lst) == 0:
-        print(f'|- no: {fund_code} not in {save_file_folder}')
+        print(f'|- no: {file_name} not in {save_file_folder}')
         return False
     else:
-        print(f'|- yes: {fund_code} in {save_file_folder}')
+        print(f'|- yes: {file_name} in {save_file_folder}')
         return True
     
 def delete_file(file_folder, file_name):

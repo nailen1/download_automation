@@ -27,7 +27,11 @@ from menu_downloader.menu_controller import (
     is_now_circle_loading,
     is_now_bar_loading,
     is_bar_loading,
-    close_menu_window
+    close_menu_window,
+)
+from menu_downloader.s3_validator import (
+    validate_download_process,
+    upload_downloaded_dataset_to_s3,
 )
 from menu_downloader.excel_controller import (
     control_on_excel_to_save_as_popup,
@@ -35,6 +39,7 @@ from menu_downloader.excel_controller import (
     close_excel,
     delete_file,
     is_dataset_downloaded,
+    check_excel_processes_status_and_quit_all,
 )
 from .menu2206_time_consts import (
     TIME_INTERVAL_BETWWEN_SEQUENCES,
@@ -118,7 +123,7 @@ class MOS2206:
         else:
             print(f'| (step) input fund code: {self.fund_code}')
         coord = self.mapping_sequences['input_fund_code']
-        input_something_on_input_field(coord_input_fund_code=coord, fund_code=fund_code_to_input)
+        input_something_on_input_field(coord_input=coord, something=fund_code_to_input)
         return None
     
     def execute_input_date_ref(self):
@@ -167,33 +172,24 @@ class MOS2206:
     def execute_process_on_excel(self):  
         wait_for_n_seconds(TIME_INTERVAL_BETWWEN_SEQUENCES_LONG)
         control_on_excel_to_save_as_popup()
-        control_on_save_as_popup(file_folder=self.file_folder, file_name=self.file_name)
+        control_on_save_as_popup(file_folder=self.folder_path, file_name=self.file_name)
         wait_for_n_seconds(3)
         close_excel()
         wait_for_n_seconds(2)
-        # exception = True if self.menu_code in menu_codes_validate_exception else False
-        # if validate_download_process(self.file_folder, self.file_name, exception=exception):
-        #     upload_downloaded_dataset_to_s3(self.file_folder, self.file_name, bucket_prefix=self.bucket_prefix)
-        # else:
-        #     delete_file(self.file_folder, self.file_name)
-        # check_excel_processes_status_and_quit_all()
+        exception = True if self.menu_code in ['2205'] else False
+        if validate_download_process(self.folder_path, self.file_name, exception=exception):
+            upload_downloaded_dataset_to_s3(self.folder_path, self.file_name, bucket_prefix=self.bucket_prefix)
+        else:
+            delete_file(self.file_folder, self.file_name)
+        check_excel_processes_status_and_quit_all()
         return None
 
     def execute_menu_close(self):
         wait_for_n_seconds(TIME_INTERVAL_BETWWEN_SEQUENCES_LONG)
         print(f'| (step) click close button')
         coord = self.mapping_sequences['button_close']
-        close_menu_window(coord_button=coord)
+        close_menu_window(coord_close_menu=coord)
         return None
-
-# SEQUENCES_MENU2206 = ['input_menu_code',
-#  'button_tab_category',
-#  'input_fund_code',
-#  'input_ref_date',
-#  'button_search',
-#  'button_excel',
-#  'button_excel_popup',
-#  'button_close']
 
     def execute_sequence(self, sequence):
         mapping_executions = {
@@ -213,14 +209,15 @@ class MOS2206:
         for i, sequence in enumerate(self.sequences):
             if option_verbose:
                 print(f'| (step) {i+1}/{len(self.sequences)}: {sequence}')
-            self.execute_sequence(sequence)
+            if sequence != 'button_close':
+                self.execute_sequence(sequence)
         self.execute_process_on_excel()
         self.execute_menu_close()
         return None    
     
     def recursive_download_dataset(self):
         print(f'⏳ download start: {self.file_name} in {self.file_folder}')
-        if is_dataset_downloaded(fund_code=self.file_folder, save_file_folder=self.file_folder, file_name=self.file_name):
+        if is_dataset_downloaded(save_file_folder=self.folder_path, file_name=self.file_name):
             print(f'⭕ download complete: {self.file_name} in {self.file_folder}')
         else:
             self.execute_all_sequences()
