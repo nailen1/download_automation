@@ -34,6 +34,7 @@ from menu_downloader.excel_controller import (
     control_on_save_as_popup,
     close_excel,
     delete_file,
+    is_dataset_downloaded,
 )
 from .menu2206_time_consts import (
     TIME_INTERVAL_BETWWEN_SEQUENCES,
@@ -216,7 +217,15 @@ class MOS2206:
         self.execute_process_on_excel()
         self.execute_menu_close()
         return None    
-        
+    
+    def recursive_download_dataset(self):
+        print(f'⏳ download start: {self.file_name} in {self.file_folder}')
+        if is_dataset_downloaded(fund_code=self.file_folder, save_file_folder=self.file_folder, file_name=self.file_name):
+            print(f'⭕ download complete: {self.file_name} in {self.file_folder}')
+        else:
+            self.execute_all_sequences()
+            self.recursive_download_dataset()
+        return None
 
     @staticmethod
     def get_value(value, *args):

@@ -18,9 +18,6 @@ from menu_downloader.excel_controller.excel_path_director import (
     IMAGE_PATH_EXCEL_FOLDER_ARROWS,
     IMAGE_PATH_EXCEL_SAVE_AS_POPUP_IDENTIFIER
 )
-from .excel_utils import (
-    is_excel_save_caution_popup
-)
 from .excel_consts import (
     KEY_SAVE_AS_WINDOWS,
     FILE_FORMAT_SELECT_KEY
