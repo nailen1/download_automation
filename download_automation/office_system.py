@@ -200,6 +200,7 @@ class OfficeSystem:
         print(f'| (step) input fund code: {fund_code_value}')
         coord = self.get_coord_of_sequence('input_fund_code')
         execute_input_fund_code(coord_input_fund_code=coord, fund_code=self.fund_code)
+        wait_for_n_seconds(1)
         return None
     
     def execute_input_start_date(self):
@@ -218,6 +219,7 @@ class OfficeSystem:
         print(f'| (step) input ref date: {self.input_date}')
         coord = self.get_coord_of_sequence('input_ref_date')
         input_something_on_input_field(coord_input=coord, something=self.input_date)
+        wait_for_n_seconds(1)
         return None
     
     def execute_button_search(self):

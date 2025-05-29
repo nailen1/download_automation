@@ -5,7 +5,13 @@ from .constants import *
 from .office_system import *
 from .date_utils import *
 from .existings_picker import *
-from .fund_categories import *
+from fund_insight_engine.fund_data_retriever.fund_mappings import (
+    get_mapping_fund_names_with_priority_1, 
+    get_mapping_fund_names_with_priority_2, 
+    get_mapping_fund_names_with_non_priority,
+    get_mapping_fund_names_mongodb
+)
+
 
 def get_all_fund_codes():
     df_fundlist = get_df_fundlist_from_menu2160_snapshots_in_s3()    
@@ -238,4 +244,44 @@ def download_all_timeseries_datasets(menu_code='2160', fund_codes=None, start_da
         mos.recursive_download_dataset()
 
     save_download_log_of_timeseries_datasets(file_folder=f'dataset-menu{menu_code}', end_date=end_date)
+    return None
+
+def download_menu2205s_priority_1(date_ref=None):
+    menu_code = '2205'
+    date_ref = date_ref or get_yesterday()
+    fund_codes_priority_1 = list(get_mapping_fund_names_with_priority_1().keys())
+    for fund_code in tqdm(fund_codes_priority_1):
+        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=date_ref)
+        mos.recursive_download_dataset()
+    save_download_log_of_sanpshot_datasets(file_folder=f'dataset-menu{menu_code}', input_date=date_ref)
+    return None
+
+def download_menu2205s_priority_2(date_ref=None):
+    menu_code = '2205'
+    date_ref = date_ref or get_yesterday()
+    fund_codes_priority_2 = list(get_mapping_fund_names_with_priority_2().keys())
+    for fund_code in tqdm(fund_codes_priority_2):
+        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=date_ref)
+        mos.recursive_download_dataset()
+    save_download_log_of_sanpshot_datasets(file_folder=f'dataset-menu{menu_code}', input_date=date_ref)
+    return None
+
+def download_menu2205s_non_priority(date_ref=None):
+    menu_code = '2205'
+    date_ref = date_ref or get_yesterday()
+    fund_codes_non_priority = list(get_mapping_fund_names_with_non_priority().keys())
+    for fund_code in tqdm(fund_codes_non_priority):
+        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=date_ref)
+        mos.recursive_download_dataset()
+    save_download_log_of_sanpshot_datasets(file_folder=f'dataset-menu{menu_code}', input_date=date_ref)
+    return None
+
+def download_menu2205s_all(date_ref=None):
+    menu_code = '2205'
+    date_ref = date_ref or get_yesterday()
+    fund_codes_all = list(get_mapping_fund_names_mongodb().keys())
+    for fund_code in tqdm(fund_codes_all):
+        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=date_ref)
+        mos.recursive_download_dataset()
+    save_download_log_of_sanpshot_datasets(file_folder=f'dataset-menu{menu_code}', input_date=date_ref)
     return None

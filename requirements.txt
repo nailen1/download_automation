@@ -8,5 +8,6 @@ numpy
 mss
 psutil
 boto3
+schedule
 shining_pebbles
 aws_s3_controller

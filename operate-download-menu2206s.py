@@ -8,5 +8,5 @@ m = Menu2206s()
 m.fetch_snapshots()
 m.insert_all()
 
-dates_db = COLLECTION_2206.distinct('일자')[::-1]
+dates_db = COLLECTION_2206.distinct('일자')[::-1][:10]
 print(dates_db)

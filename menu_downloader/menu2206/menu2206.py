@@ -28,6 +28,10 @@ from menu_downloader.menu_controller import (
     is_now_bar_loading,
     is_bar_loading,
     close_menu_window,
+    is_data_length_popup,
+    is_now_data_loading,
+    is_data_loading_started,
+    is_there_data_length_caution_popup_on_data_loading
 )
 from menu_downloader.s3_validator import (
     validate_download_process,
@@ -40,6 +44,7 @@ from menu_downloader.excel_controller import (
     delete_file,
     is_dataset_downloaded,
     check_excel_processes_status_and_quit_all,
+
 )
 from .menu2206_time_consts import (
     TIME_INTERVAL_BETWWEN_SEQUENCES,
@@ -155,16 +160,30 @@ class MOS2206:
             wait_for_n_seconds(3)
         return None
 
+
+    # def execute_button_excel_popup(self):
+    #     wait_for_n_seconds(TIME_INTERVAL_BETWWEN_SEQUENCES_SHORT)
+    #     print(f'| (step) click excel popup button')
+    #     coord = self.mapping_sequences['button_excel_popup']
+    #     click_button(coord_button=coord)
+    #     # if self.menu_code in menu_codes_having_fast_excel_execution and is_on_running_excel():
+    #     #     return None
+    #     if is_bar_loading():
+    #         pass
+    #     if not is_now_bar_loading(max_retries=100, attempt=1, timeout=5, check_interval=5):
+    #         pass
+    #     wait_for_n_seconds(3)
+    #     return None
+
+
     def execute_button_excel_popup(self):
         wait_for_n_seconds(TIME_INTERVAL_BETWWEN_SEQUENCES_SHORT)
         print(f'| (step) click excel popup button')
         coord = self.mapping_sequences['button_excel_popup']
         click_button(coord_button=coord)
-        # if self.menu_code in menu_codes_having_fast_excel_execution and is_on_running_excel():
-        #     return None
-        if is_bar_loading():
+        if is_data_loading_started():
             pass
-        if not is_now_bar_loading(max_retries=100, attempt=1, timeout=5, check_interval=5):
+        if not is_now_data_loading():
             pass
         wait_for_n_seconds(3)
         return None
