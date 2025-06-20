@@ -184,44 +184,6 @@ def download_all_snapshot_datasets(menu_code='2205', input_date=None, fund_codes
     return None
 
 
-def download_main_funds_snapshot_datasets(menu_code='2205', input_date=None):
-    input_date = input_date or get_date_n_days_ago(get_today("%Y%m%d"),1)
-
-    for fund_code in tqdm(FUND_CODES_PRIORITEZED):
-        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
-        mos.recursive_download_dataset()
-
-    for fund_code in tqdm(FUND_CODES_MENU2205_PRIORITY):
-        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
-        mos.recursive_download_dataset()
-
-    for fund_code in tqdm(get_fund_codes_mothers()):
-        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
-        mos.recursive_download_dataset()
-
-    for fund_code in tqdm(get_fund_codes_nonclassified()):
-        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
-        mos.recursive_download_dataset()
-
-    for fund_code in tqdm(get_fund_codes_general()):
-        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
-        mos.recursive_download_dataset()
-
-    save_download_log_of_sanpshot_datasets(file_folder=f'dataset-menu{menu_code}', input_date=input_date)
-    return None
-
-
-def download_class_funds_snapshot_datasets(menu_code='2205', input_date=None):
-    input_date = input_date or get_date_n_days_ago(get_today("%Y%m%d"),1)
-
-    for fund_code in tqdm(get_fund_codes_nonclassified()):
-        mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, input_date=input_date)
-        mos.recursive_download_dataset()
-
-    save_download_log_of_sanpshot_datasets(file_folder=f'dataset-menu{menu_code}', input_date=input_date)
-    return None
-
-
 def download_all_period_datasets(menu_code='8870', date_pairs=None):
     date_pairs_nonexistent = pick_nonexistent_date_pairs_in_period_datasets(menu_code='8870', date_pairs=DATE_PAIRS_DEFAULT)
     date_pairs = date_pairs or date_pairs_nonexistent
@@ -236,9 +198,9 @@ def download_all_period_datasets(menu_code='8870', date_pairs=None):
 def download_all_timeseries_datasets(menu_code='2160', fund_codes=None, start_date=None, end_date=None, category='all'):
     start_date = start_date or DATE_GENESIS
     end_date = end_date or get_yesterday()
-    fund_codes_nonexistent = pick_nonexistent_fund_codes_in_timeseries_datasets(menu_code, (start_date, end_date), category=category)
-    fund_codes = fund_codes or fund_codes_nonexistent
-    
+    fund_codes_all = get_mapping_fund_names_mongodb().keys()
+    fund_codes_existing = get_fund_codes_downloaded_in_file_folder(menu_code=menu_code, end_date=end_date)
+    fund_codes = fund_codes or list(set(fund_codes_all) - set(fund_codes_existing))
     for fund_code in tqdm(fund_codes):
         mos = OfficeSystem(menu_code=menu_code, fund_code=fund_code, start_date=start_date, end_date=end_date)
         mos.recursive_download_dataset()

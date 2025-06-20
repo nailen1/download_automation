@@ -17,3 +17,13 @@ SEQUENCES_MENU2206 = ['input_menu_code',
  'button_excel',
  'button_excel_popup',
  'button_close']
+SEQUENCES_MENU1100 = ['input_menu_code',
+ 'input_start_date',
+ 'input_end_date',
+ 'check_1',
+ 'check_2',
+ 'check_3',
+ 'button_search',
+ 'button_excel',
+ 'button_excel_popup',
+ 'button_close']

@@ -6,7 +6,8 @@ from download_automation import *
 # from database_managing.insert_utils.menu2206 import Menu2206s
 from database_managing import *
 from tqdm import tqdm
-from menu_downloader import MOS2206
+from menu_downloader import MOS2206, MOS1100, MAPPING_PSEUDO_CODES, DATALAKE_DIR
+from mongodb_controller import client
 
 def run_download_tasks():
     date_ref = get_yesterday()
@@ -76,6 +77,19 @@ def run_download_tasks():
     fetcher_2205 = Menu2205Snapshots()
     fetcher_2205.fetch_snapshots()
     fetcher_2205.insert_all()
+
+
+    for menu_code, _ in MAPPING_PSEUDO_CODES.items():
+        mos = MOS1100(menu_code=menu_code, start_date=date_ref, end_date=date_ref)
+        mos.recursive_download_dataset()
+        wait_for_n_seconds(1)
+
+    file_names_local = scan_files_including_regex(file_folder='C:/datalake/dataset-menu1100', regex=f'menu1100-.*-at{date_ref.replace("-","")}')
+    for file_name in tqdm(file_names_local):
+        upload_files_to_s3(file_folder_local=DATALAKE_DIR, regex=file_name, bucket='dataset-system', bucket_prefix='dataset-menu1100')
+
+    for ticker_pseudo in MAPPING_PSEUDO_CODES.values():
+        insert_menu1100(ticker_pseudo, date_ref=date_ref)
 
     download_menu2205s_non_priority(date_ref=date_ref)
     download_menu2205s_all(date_ref=date_ref)

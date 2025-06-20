@@ -7,6 +7,7 @@ from .download_processor_for_office_system import *
 from .download_processor_for_excel import *
 from .download_processor_for_s3 import *
 from .constants import *
+from .download_processor_for_excel import delete_file
 
 
 # # screen size
@@ -289,8 +290,11 @@ class OfficeSystem:
         wait_for_n_seconds(3)
         close_excel()
         wait_for_n_seconds(2)
+        FUND_CODES_EXCEPTION_FOR_MENU2160 = ['100180', '100181', '100182', '100183']
         exception = True if self.menu_code in menu_codes_validate_exception else False
         if validate_download_process(self.file_folder, self.file_name, exception=exception):
+            upload_downloaded_dataset_to_s3(self.file_folder, self.file_name, bucket_prefix=self.bucket_prefix)
+        elif self.fund_code in FUND_CODES_EXCEPTION_FOR_MENU2160:
             upload_downloaded_dataset_to_s3(self.file_folder, self.file_name, bucket_prefix=self.bucket_prefix)
         else:
             delete_file(self.file_folder, self.file_name)

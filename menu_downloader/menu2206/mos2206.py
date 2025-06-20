@@ -15,7 +15,7 @@ from menu_downloader.consts import (
     BUCKET,
     BUCKET_PREFIX,
     MAPPING_MENU_CODE_INPUT,
-    FILE_NAME_FORMAT
+    SNAPSHOT_FILE_NAME_FORMAT
 )
 from menu_downloader.screen_controller import (
     wait_for_n_seconds,
@@ -46,20 +46,20 @@ from menu_downloader.excel_controller import (
     check_excel_processes_status_and_quit_all,
 
 )
-from .menu2206_time_consts import (
-    TIME_INTERVAL_BETWWEN_SEQUENCES,
-    TIME_INTERVAL_BETWWEN_SEQUENCES_LONG,
-    TIME_INTERVAL_BETWWEN_SEQUENCES_SHORT
+from menu_downloader.menu_controller.menu_time_consts import (
+    TIME_INTERVAL_BETWEEN_SEQUENCES,
+    TIME_INTERVAL_BETWEEN_SEQUENCES_LONG,
+    TIME_INTERVAL_BETWEEN_SEQUENCES_SHORT
 )
 
 
 
 
 class MOS2206:
-    def __init__(self, menu_code='2206', date_ref=None):
+    def __init__(self, menu_code='2206', date_ref=None, fund_code=FUND_CODE_DEFAULT):
         self.menu_code = menu_code
         self.menu_code_input = MAPPING_MENU_CODE_INPUT.get(menu_code, menu_code)
-        self.fund_code = FUND_CODE_DEFAULT
+        self.fund_code = fund_code
         self.date_ref = self.set_date_ref(date_ref) 
         self.file_folder = self.set_file_folder()
         self.folder_path = self.set_folder_path()
@@ -79,14 +79,16 @@ class MOS2206:
         self.today_nondashed = self.today.replace('-', '')
         return self.date_ref
 
-    def set_file_folder(self):
+    def set_file_folder(self, folder_label=None):
+        folder_label = folder_label if folder_label else self.menu_code
         return self.get_value(FILE_FOLDER, self.menu_code)
 
     def set_folder_path(self):
         return os.path.join(DATALAKE_DIR, self.file_folder)
  
-    def set_file_name(self):
-        return self.get_value(FILE_NAME_FORMAT, self.menu_code, self.fund_code, self.date_ref_nondashed, self.today_nondashed)
+    def set_file_name(self, name_label=None):
+        name_label = name_label if name_label else self.menu_code
+        return self.get_value(SNAPSHOT_FILE_NAME_FORMAT, name_label, self.fund_code, self.date_ref_nondashed, self.today_nondashed)
 
     def set_file_path(self):
         return os.path.join(self.folder_path, self.file_name)
@@ -107,21 +109,21 @@ class MOS2206:
         return get_mapping_sequences_to_coordinates(self.df_coordinates)
     
     def execute_input_menu_code(self):
-        wait_for_n_seconds(TIME_INTERVAL_BETWWEN_SEQUENCES)
+        wait_for_n_seconds(TIME_INTERVAL_BETWEEN_SEQUENCES)
         print(f'| (step) open menu: {self.menu_code}')
         coord = self.mapping_sequences['input_menu_code']
         execute_input_menu_code_and_press_enter(coord_input_menu=coord, menu_code=self.menu_code_input)
         return None
   
     def execute_button_tab_category(self):
-        wait_for_n_seconds(TIME_INTERVAL_BETWWEN_SEQUENCES)
+        wait_for_n_seconds(TIME_INTERVAL_BETWEEN_SEQUENCES)
         print(f'| (step) click tab category button')
         coord = self.mapping_sequences['button_tab_category']
         click_button(coord_button=coord)
         return None
 
     def execute_input_fund_code(self):
-        wait_for_n_seconds(TIME_INTERVAL_BETWWEN_SEQUENCES)
+        wait_for_n_seconds(TIME_INTERVAL_BETWEEN_SEQUENCES)
         fund_code_to_input = '' if self.fund_code == FUND_CODE_DEFAULT else self.fund_code
         if self.fund_code == FUND_CODE_DEFAULT:
             print(f'| (step) input fund code: ALL_FUNDS')
@@ -132,14 +134,14 @@ class MOS2206:
         return None
     
     def execute_input_date_ref(self):
-        wait_for_n_seconds(TIME_INTERVAL_BETWWEN_SEQUENCES)
+        wait_for_n_seconds(TIME_INTERVAL_BETWEEN_SEQUENCES)
         print(f'| (step) input ref date: {self.date_ref}')
         coord = self.mapping_sequences['input_ref_date']
         input_something_on_input_field(coord_input=coord, something=self.date_ref_nondashed)
         return None
     
     def execute_button_search(self):
-        wait_for_n_seconds(TIME_INTERVAL_BETWWEN_SEQUENCES)
+        wait_for_n_seconds(TIME_INTERVAL_BETWEEN_SEQUENCES)
         print(f'| (step) click search button')
         coord = self.mapping_sequences['button_search']
         click_button(coord_button=coord)
@@ -149,7 +151,7 @@ class MOS2206:
         return None
 
     def execute_button_excel(self):
-        wait_for_n_seconds(TIME_INTERVAL_BETWWEN_SEQUENCES)
+        wait_for_n_seconds(TIME_INTERVAL_BETWEEN_SEQUENCES)
         print(f'| (step) click excel button')
         coord = self.mapping_sequences['button_excel']
         mapping = self.mapping_sequences
@@ -162,7 +164,7 @@ class MOS2206:
 
 
     # def execute_button_excel_popup(self):
-    #     wait_for_n_seconds(TIME_INTERVAL_BETWWEN_SEQUENCES_SHORT)
+    #     wait_for_n_seconds(TIME_INTERVAL_BETWEEN_SEQUENCES_SHORT)
     #     print(f'| (step) click excel popup button')
     #     coord = self.mapping_sequences['button_excel_popup']
     #     click_button(coord_button=coord)
@@ -177,7 +179,7 @@ class MOS2206:
 
 
     def execute_button_excel_popup(self):
-        wait_for_n_seconds(TIME_INTERVAL_BETWWEN_SEQUENCES_SHORT)
+        wait_for_n_seconds(TIME_INTERVAL_BETWEEN_SEQUENCES_SHORT)
         print(f'| (step) click excel popup button')
         coord = self.mapping_sequences['button_excel_popup']
         click_button(coord_button=coord)
@@ -189,7 +191,12 @@ class MOS2206:
         return None
 
     def execute_process_on_excel(self):  
-        wait_for_n_seconds(TIME_INTERVAL_BETWWEN_SEQUENCES_LONG)
+        self.set_file_folder()
+        self.set_file_name()
+        self.set_folder_path()
+        self.set_file_path()
+ 
+        wait_for_n_seconds(TIME_INTERVAL_BETWEEN_SEQUENCES_LONG)
         control_on_excel_to_save_as_popup()
         control_on_save_as_popup(file_folder=self.folder_path, file_name=self.file_name)
         wait_for_n_seconds(3)
@@ -204,7 +211,7 @@ class MOS2206:
         return None
 
     def execute_menu_close(self):
-        wait_for_n_seconds(TIME_INTERVAL_BETWWEN_SEQUENCES_LONG)
+        wait_for_n_seconds(TIME_INTERVAL_BETWEEN_SEQUENCES_LONG)
         print(f'| (step) click close button')
         coord = self.mapping_sequences['button_close']
         close_menu_window(coord_close_menu=coord)

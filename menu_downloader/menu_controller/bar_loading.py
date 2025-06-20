@@ -13,7 +13,7 @@ from menu_downloader.excel_controller.excel_utils import (
     is_on_excel_window
 )
 from menu_downloader.screen_controller.screen_time_consts import (
-    TIME_INTERVAL_BETWWEN_CLICK_AND_KEYBOARD_CONTOL,
+    TIME_INTERVAL_BETWEEN_CLICK_AND_KEYBOARD_CONTOL,
 )
 from menu_downloader.menu_controller.menu_path_director import (
     IMAGE_PATH_BAR_LOADING_IDENTIFIER,
@@ -55,7 +55,7 @@ def is_now_bar_loading(max_retries=30, attempt=1, timeout=5, check_interval=1):
         return False
     else:
         if is_data_length_popup():
-           wait_for_n_seconds(TIME_INTERVAL_BETWWEN_CLICK_AND_KEYBOARD_CONTOL)
+           wait_for_n_seconds(TIME_INTERVAL_BETWEEN_CLICK_AND_KEYBOARD_CONTOL)
            click_button(IMAGE_PATH_DATA_LENGTH_POPUP_IDENTIFIER)
         if attempt >= max_retries:
             print('|- max retries reached. data loading did not complete.')

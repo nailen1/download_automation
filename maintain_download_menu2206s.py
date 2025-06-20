@@ -24,6 +24,7 @@ for date in tqdm(dates_to_download):
         print(f"Current time is {current_hour}:00 (past 2 AM). Stopping the loop.")        
         break
     print(f"# Downloading data for date: {date}")
+
     mos = MOS2206(date_ref=date)
     mos.execute_all_sequences()
 
