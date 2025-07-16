@@ -4,6 +4,7 @@ class Activator:
     def __init__(self):
         self.title = PROCESS_NAME
         print('|- setting initial configurations ...')
+        wait_for_n_seconds(1)
         self.mos, self.bos = self.set_office_systems()
         self.set_canonical_settings()
 
@@ -29,7 +30,7 @@ class Activator:
             if mos_is_running and bos_is_running:
                 wait_for_n_seconds(5)
                 windows = get_operating_windows_by_title(self.title)
-                print(len(windows))
+                print('operating windows:', len(windows))
                 running_systems = assign_office_system_type(windows)
                 print(f'|- set (MOS).')
                 self.mos = running_systems['MOS']

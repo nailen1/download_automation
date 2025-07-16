@@ -151,7 +151,7 @@ class MOS2206:
         return None
 
     def execute_button_excel(self):
-        wait_for_n_seconds(TIME_INTERVAL_BETWEEN_SEQUENCES)
+        wait_for_n_seconds(TIME_INTERVAL_BETWEEN_SEQUENCES_LONG)
         print(f'| (step) click excel button')
         coord = self.mapping_sequences['button_excel']
         mapping = self.mapping_sequences

@@ -92,6 +92,7 @@ def check_login_window_of_system(name_system):
             return False
 
 def login_on_system():
+    wait_for_n_seconds(2)
     typewrite(SYSTEM_INFO)
     wait_for_n_seconds(1)
     press('enter')
@@ -112,6 +113,7 @@ def check_system_is_running(name_system):
         return False
 
 def execute_system(name_system):
+    wait_for_n_seconds(0.5)
     click_icon_of_system(name_system)
     if name_system == 'MOS':
         if is_there_mos_exception_popup():

@@ -6,7 +6,7 @@ from download_automation import *
 # from database_managing.insert_utils.menu2206 import Menu2206s
 from database_managing import *
 from tqdm import tqdm
-from menu_downloader import MOS2206, MOS1100, MAPPING_PSEUDO_CODES, DATALAKE_DIR
+from menu_downloader import MOS2206, MOS1100, MAPPING_PSEUDO_CODES, DATALAKE_DIR, TDP, MAPPING_PSEUDO_CODES_EARLY, MAPPING_PSEUDO_CODES_LATER
 from mongodb_controller import client
 
 def run_download_tasks():
@@ -22,6 +22,8 @@ def run_download_tasks():
     activator.on_mos()
 
     m = MOS2206(date_ref=date_ref)
+    file_name_menu2206 = m.file_name
+    file_folder_menu2206 = m.folder_path 
     m.recursive_download_dataset()
     menu2206_fetcher = Menu2206s()
     menu2206_fetcher.fetch_snapshots()
@@ -40,6 +42,18 @@ def run_download_tasks():
     mos.recursive_download_dataset()
     insert_every_menu_data()
     
+    # TDP for menu2206
+    tdp_for_menu2206 = TDP(file_name=file_name_menu2206, folder_path=file_folder_menu2206)
+    is_valid_menu2206 = tdp_for_menu2206.validate_all()
+    if not is_valid_menu2206:
+        tdp_for_menu2206.move_to_monitoring_local()
+        # run processor for menu2206
+        m = MOS2206(date_ref=date_ref)
+        m.recursive_download_dataset()
+        menu2206_fetcher = Menu2206s()
+        menu2206_fetcher.fetch_snapshots()
+        menu2206_fetcher.insert_all()
+
     download_menu2205s_priority_2(date_ref=date_ref)
     dates_and_codes = get_nonexisting_pairs_date_code_for_menu2205()
     for date, code in tqdm(dates_and_codes):
@@ -79,17 +93,38 @@ def run_download_tasks():
     fetcher_2205.insert_all()
 
 
-    for menu_code, _ in MAPPING_PSEUDO_CODES.items():
+    for menu_code, ticker_pseudo in MAPPING_PSEUDO_CODES_EARLY.items():
         mos = MOS1100(menu_code=menu_code, start_date=date_ref, end_date=date_ref)
         mos.recursive_download_dataset()
+        insert_menu1100(ticker_pseudo, date_ref=date_ref)
         wait_for_n_seconds(1)
 
-    file_names_local = scan_files_including_regex(file_folder='C:/datalake/dataset-menu1100', regex=f'menu1100-.*-at{date_ref.replace("-","")}')
-    for file_name in tqdm(file_names_local):
-        upload_files_to_s3(file_folder_local=DATALAKE_DIR, regex=file_name, bucket='dataset-system', bucket_prefix='dataset-menu1100')
+    # file_names_local = scan_files_including_regex(file_folder='C:/datalake/dataset-menu1100', regex=f'menu1100-.*-at{date_ref.replace("-","")}')
+    # for file_name in tqdm(file_names_local):
+    #     upload_files_to_s3(file_folder_local=DATALAKE_DIR, regex=file_name, bucket='dataset-system', bucket_prefix='dataset-menu1100')
 
-    for ticker_pseudo in MAPPING_PSEUDO_CODES.values():
+    # for ticker_pseudo in MAPPING_PSEUDO_CODES.values():
+    #     insert_menu1100(ticker_pseudo, date_ref=date_ref)
+
+    # TDP for menu2206
+    tdp_for_menu2206 = TDP(file_name=file_name_menu2206, folder_path=file_folder_menu2206)
+    is_valid_menu2206 = tdp_for_menu2206.validate_all()
+    if not is_valid_menu2206:
+        tdp_for_menu2206.move_to_monitoring_local()
+        # run processor for menu2206
+        m = MOS2206(date_ref=date_ref)
+        m.recursive_download_dataset()
+        menu2206_fetcher = Menu2206s()
+        menu2206_fetcher.fetch_snapshots()
+        menu2206_fetcher.insert_all()
+
+    insert_data_fund_configuration(start_date=None, end_date=None)
+
+    for menu_code, ticker_pseudo in MAPPING_PSEUDO_CODES_LATER.items():
+        mos = MOS1100(menu_code=menu_code, start_date=date_ref, end_date=date_ref)
+        mos.recursive_download_dataset()
         insert_menu1100(ticker_pseudo, date_ref=date_ref)
+        wait_for_n_seconds(1)
 
     download_menu2205s_non_priority(date_ref=date_ref)
     download_menu2205s_all(date_ref=date_ref)
@@ -100,11 +135,18 @@ def run_download_tasks():
             menu2205_fetcher.fetch_unit_df()
             menu2205_fetcher.insert_unit()
 
-    m = MOS2206(date_ref=date_ref)
-    m.recursive_download_dataset()
-    menu2206_fetcher = Menu2206s()
-    menu2206_fetcher.fetch_snapshots()
-    menu2206_fetcher.insert_all()
+    # TDP for menu2206
+    tdp_for_menu2206 = TDP(file_name=file_name_menu2206, folder_path=file_folder_menu2206)
+    is_valid_menu2206 = tdp_for_menu2206.validate_all()
+    if not is_valid_menu2206:
+        tdp_for_menu2206.move_to_monitoring_local()
+        # run processor for menu2206
+        m = MOS2206(date_ref=date_ref)
+        m.recursive_download_dataset()
+        menu2206_fetcher = Menu2206s()
+        menu2206_fetcher.fetch_snapshots()
+        menu2206_fetcher.insert_all()
+
 
     return None
 

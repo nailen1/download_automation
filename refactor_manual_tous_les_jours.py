@@ -9,7 +9,10 @@ from tqdm import tqdm
 from menu_downloader import MOS2206, MOS1100, MAPPING_PSEUDO_CODES, DATALAKE_DIR
 from string_date_controller import get_all_dates_between_dates
 
-dates_ref = get_all_dates_between_dates(start_date='2025-06-13', end_date='2025-06-14')[::-1]
+START_DATE = '2025-06-13'
+END_DATE = '2025-06-14'
+
+dates_ref = get_all_dates_between_dates(start_date=START_DATE, end_date=END_DATE)[::-1]
 
 def run_multiple_download_tasks(dates_ref):
     for date_ref in dates_ref:
